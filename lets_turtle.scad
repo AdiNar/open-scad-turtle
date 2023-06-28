@@ -65,6 +65,14 @@ right = function (state, angle) make_state(state, rotation_matrix=_right(rotatio
 
 left = function (state, angle) right(state, -angle);
 
+goto = function (state, position) make_state(state, position=position);
+
+
+NEST_MARKER = function(do_not_call_me) undef;
+function loop(times, body) = concat(NEST_MARKER, [_loop(times, body)]);
+function _loop(times, body) =
+    times == 0 ? [] : concat(body, _loop(times - 1, body));
+
 module draw_move(state, delta) {
     w = line_width(state) / 2;
     
@@ -87,21 +95,57 @@ move = function (state, delta) make_state(state, position=_move(rotation_matrix(
 test_right();
 test_move();
 
+function move_to_name(move) = 
+    let (fun = move[0])
+        fun == right ? "right" : 
+        fun == left ? "left" : 
+        fun == forward ? "forward" : 
+        fun == move ? "move" : 
+        fun == goto ? "goto" :
+        concat("Invalid move", move);
+    
+
+/* Utility function to print moves.
+    Usage: 
+        
+*/
+function echo_moves(moves) = _echo_moves(moves, 0);
+function _echo_moves(moves, index) = 
+    index == len(moves) ? undef : 
+        let (move = moves[index], echo(move_to_name(move), move[1]))
+        _echo_moves(moves, index+1);
+
+function flatten_moves(moves) = _flatten_moves(moves, 0);
+function _flatten_moves(moves, index) = 
+    index == len(moves) ? undef :
+        let (
+            head = moves[index][0] == 
+                NEST_MARKER ? 
+                    flatten_moves(moves[index][1]) : 
+                    [moves[index]],
+            tail = index < len(moves) ? _flatten_moves(moves, index+1) : undef
+        )
+        head == undef ? 
+            undef :
+            tail == undef ? head : concat(head, tail);
+
 module go_turtle(initial_state=undef, moves) {
     state = initial_state == undef ? init_state() : initial_state;
     
-    states = make_states(state, moves, 0);
+    flat_moves = flatten_moves(moves);
     
-    moves_count = len(moves);
+    states = make_states(state, flat_moves, 0);
+    
+    moves_count = len(flat_moves);
     
     for (index = [0 : moves_count]) {
-        move_fun = moves[index][0];
-        move_args = moves[index][1];
+        move_fun = flat_moves[index][0];
+        move_args = flat_moves[index][1];
         _draw(states[index], move_fun, move_args);
     }
 }
 
-module _draw(state, fun, args) {
+module _draw(state, fun, args) { 
     if (fun == forward) {
         draw_forward(state, args);
     } else if (fun == move) {
@@ -119,12 +163,51 @@ function make_states(state, moves, index) =
         index < len(moves) ? 
             concat([state], make_states(next_state, moves, index+1)) 
             : 
-            [state, next_state];
+            [state];
 
 go_turtle(moves=[
     [right, 45],
     [forward, 100],
     [right, 30],
-    [forward, 100]
+    [forward, 100],
+    loop(6, [
+        [right, 60],
+        [forward, 50],
+    ])
 ]);
 
+
+module test_flatten_moves() {
+    _a(flatten_moves([
+        [1],
+        [2],
+    ]), [[1], [2]]);
+    
+    _a(flatten_moves([
+        [1],
+        [2],
+        [NEST_MARKER, [[3], [4]]]
+    ]), [[1], [2], [3], [4]]);
+    
+    _a(flatten_moves([
+        [1],
+        [2],
+        [NEST_MARKER, [
+            [3], [4], [NEST_MARKER, [[5], [6]]]
+        ]]
+    ]), [[1], [2], [3], [4], [5], [6]]);
+}
+
+module test_loop() {
+    _a(loop(3, [1]), [NEST_MARKER, [1, 1, 1]]);
+    _a(loop(0, [1]), [NEST_MARKER, []]);
+    _a(loop(3, [1, 2]), [NEST_MARKER, [1, 2, 1, 2, 1, 2]]);
+}
+
+function figure(moves) = concat(NEST_MARKER, moves);
+
+
+test_flatten_moves();
+test_loop();
+
+_ = echo_moves([[right, 30]]);

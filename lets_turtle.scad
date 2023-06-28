@@ -39,7 +39,7 @@ function _right(current_rotation, angle) =
 module test_right() {
     state = init_state();
     _rotation_matrix = rotation_matrix(state);
-    echo(state);
+    
     _a(_right(_rotation_matrix, 360), _rotation_matrix);
     rot_45 = _right(_rotation_matrix, 45);
     _a(rot_45, [[cos(45), -sin(45)], [sin(45), cos(45)]]);
@@ -61,10 +61,9 @@ module test_move() {
     _a(f100_2, [100, 100]);
 }
 
-function right(state, angle) =
-    make_state(state, rotation_matrix=_right(rotation_matrix(state), angle));
+right = function (state, angle) make_state(state, rotation_matrix=_right(rotation_matrix(state), angle));
 
-function left(angle) = right(-angle);
+left = function (state, angle) right(state, -angle);
 
 module draw_move(state, delta) {
     w = line_width(state) / 2;
@@ -82,21 +81,50 @@ module draw_forward(state, x_delta) {
     draw_move(state, [x_delta, 0]);
 }
 
-function forward(state, x_delta) = move(state, [x_delta, 0]);
-function move(state, delta) = make_state(state, position=_move(rotation_matrix(state), position(state), delta));
+forward = function (state, x_delta) move(state, [x_delta, 0]);
+move = function (state, delta) make_state(state, position=_move(rotation_matrix(state), position(state), delta));
 
 test_right();
 test_move();
 
-state = init_state();
-state2 = right(state, 45);
+module go_turtle(initial_state=undef, moves) {
+    state = initial_state == undef ? init_state() : initial_state;
+    
+    states = make_states(state, moves, 0);
+    
+    moves_count = len(moves);
+    
+    for (index = [0 : moves_count]) {
+        move_fun = moves[index][0];
+        move_args = moves[index][1];
+        _draw(states[index], move_fun, move_args);
+    }
+}
 
-draw_forward(state2, 80);
-state3 = forward(state2, 80);
+module _draw(state, fun, args) {
+    if (fun == forward) {
+        draw_forward(state, args);
+    } else if (fun == move) {
+        draw_move(state, args);
+    }
+}
 
-state4 = right(state3, 30);
+function make_states(state, moves, index) =
+    let (
+        next_move = moves[index],
+        next_fun = next_move[0],
+        next_args = next_move[1],
+        next_state = next_fun(state, next_args)
+    ) 
+        index < len(moves) ? 
+            concat([state], make_states(next_state, moves, index+1)) 
+            : 
+            [state, next_state];
 
-draw_forward(state4, 80);
-state5 = forward(state4, 80);
-
+go_turtle(moves=[
+    [right, 45],
+    [forward, 100],
+    [right, 30],
+    [forward, 100]
+]);
 

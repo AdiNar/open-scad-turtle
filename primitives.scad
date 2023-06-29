@@ -13,21 +13,23 @@ function _right(current_rotation, angle) =
 function _move(current_rotation, current_position, delta) =
     current_position + current_rotation * delta;
 
-right = function (state, angle) State(
+right_fun = function (state, angle) State(
     state, rotation_matrix=_right(get_rotation_matrix(state), angle)
 );
 
-left = function (state, angle) right(state, -angle);
+left_fun = function (state, angle) right(state, -angle);
 
-goto = function (state, position) State(state, position=position);
+goto_fun = function (state, position) State(state, position=position);
 
-move = function (state, delta) State(
+move_fun = function (state, delta) State(
     state, position=_move(get_rotation_matrix(state), get_position(state), delta)
 );
-forward = function (state, x_delta) move(state, [x_delta, 0]);
+forward_fun = function (state, x_delta) move(state, [x_delta, 0]);
 
-noop = function (state, _) state;
+noop_fun = function (state, _) state;
 
+mode_fill_fun = noop_fun;
+mode_normal_fun = noop_fun;
 /* MODULES */
 
 module draw_move(state, delta) {
@@ -53,9 +55,3 @@ module draw(state, fun, args) {
         draw_move(state, args);
     }
 }
-
-right_str = str(right);
-left_str = str(left);
-goto_str = str(goto);
-move_str = str(move);
-forward_str = str(forward);

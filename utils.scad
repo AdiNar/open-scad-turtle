@@ -1,9 +1,16 @@
-module _a(left, right) {
-   _ = _fa(left, right);
+module _a(left, right, echo_fun=undef) {
+   _ = _fa(left, right, echo_fun);
 }
 
-function _fa(left, right) =
-    assert(str(left) == str(right), str("Expected: ", right, ", got: ", left));
+function _fa(left, right, echo_fun=undef) =
+    let (eval_left = str(left), eval_right = str(right), comp = eval_left == eval_right)
+    echo_fun ? 
+        comp ? undef : 
+            let (_1 = echo("Expected:"), _2 = echo_fun(right), _3 = echo("Got:"), _4 = echo_fun(left)) 
+                assert(false) :
+        comp ? undef :
+            let (_1 = echo("Expected:"), _2 = echo(right), _3 = echo("Got:"), _4 = echo(left)) 
+                assert(false);
 
 
 function coalesce(a1, a2, a3=undef) =

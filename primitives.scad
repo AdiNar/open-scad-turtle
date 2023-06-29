@@ -1,5 +1,4 @@
 include <types.scad>
-include <types_utils.scad>
 
 /* FUNCTIONS */
 
@@ -14,18 +13,20 @@ function _right(current_rotation, angle) =
 function _move(current_rotation, current_position, delta) =
     current_position + current_rotation * delta;
 
-right = function (state, angle) make_state(
+right = function (state, angle) State(
     state, rotation_matrix=_right(get_rotation_matrix(state), angle)
 );
 
 left = function (state, angle) right(state, -angle);
 
-goto = function (state, position) make_state(state, position=position);
+goto = function (state, position) State(state, position=position);
 
-forward = function (state, x_delta) move(state, [x_delta, 0]);
-move = function (state, delta) make_state(
+move = function (state, delta) State(
     state, position=_move(get_rotation_matrix(state), get_position(state), delta)
 );
+forward = function (state, x_delta) move(state, [x_delta, 0]);
+
+noop = function (state, _) state;
 
 /* MODULES */
 
@@ -44,3 +45,17 @@ module draw_move(state, delta) {
 module draw_forward(state, x_delta) {
     draw_move(state, [x_delta, 0]);
 }
+
+module draw(state, fun, args) { 
+    if (fun == forward) {
+        draw_forward(state, args);
+    } else if (fun == move) {
+        draw_move(state, args);
+    }
+}
+
+right_str = str(right);
+left_str = str(left);
+goto_str = str(goto);
+move_str = str(move);
+forward_str = str(forward);

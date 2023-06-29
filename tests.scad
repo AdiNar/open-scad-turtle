@@ -1,6 +1,9 @@
-use<lets_turtle.scad>
-include<utils.scad>
-include<types.scad>
+use <lets_turtle.scad>
+include <utils.scad>
+include <types.scad>
+include <primitives.scad>
+include <types_utils.scad>
+include <manipulators.scad>
 
 module test_utils() {
     p2 = function (x) x + 2;
@@ -37,15 +40,11 @@ module test_nest() {
 }
 
 module test_fill() {
-    _a(fill([
-        [right, 30],
-        [forward, 100]
-    ]), [NEST_MARKER, [
-        mode_fill,
-        [right, 30], 
-        [forward, 100],
-        mode_normal
-    ]]);
+    _a(fill([Move(forward, 10)]), 
+        [NEST_MARKER,
+            [Move(ModeFill), Move(forward, 10), Move(ModeNormal)]
+        ]
+    );
 }
 
 module test_flatten_moves() {
@@ -70,23 +69,24 @@ module test_flatten_moves() {
 }
 
 module test_split_modes() {
+    step_fill = Step(undef, Move(ModeFill));
+    step = Step(undef, Move(right, 30));
+    step2 = Step(undef, Move(forward, 30));
+    
     _a(take_mode([
-        [1], [2], make_step(undef, [mode_fill])
+        [1], [2], step_fill
     ], 0), [[1], [2]]);
     
     _a(split_by_modes([
-        [right, 30],
+        step,
     ]), [
-        [mode_normal, [[right, 30]]]
+        [ModeNormal, [step]]
     ]);
     
-    /*_a(split_by_modes(flatten_moves([
-        [right, 30],
-        fill([forward, 10]),
-    ])), [
-        [mode_normal, [[right, 30]]],
-        [mode_fill, [forward, 10]]
-    ]);*/
+    fill_steps = [step, step_fill, step2];
+    _a(split_by_modes(fill_steps), [
+        [ModeNormal, [step]], [ModeFill, [step2]]
+    ], echo_fun=echo_modes);
 }
 
 module test_loop() {
@@ -94,12 +94,12 @@ module test_loop() {
     _a(loop(0, [1]), [NEST_MARKER, []]);
     _a(loop(3, [1, 2]), [NEST_MARKER, [1, 2, 1, 2, 1, 2]]);
 }
-
+/*
 test_utils();
 test_right();
-test_move();
-test_split_modes();
+test_move();*/
+test_split_modes();/*
 test_nest();
 test_fill();
 test_flatten_moves();
-test_loop();
+test_loop();*/

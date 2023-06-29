@@ -1,7 +1,12 @@
 use<lets_turtle.scad>
+include<utils.scad>
+include<types.scad>
 
-module _a(left, right) {
-    assert(str(left) == str(right), str("Expected: ", right, ", got: ", left));
+module test_utils() {
+    p2 = function (x) x + 2;
+    _a(map([1, 2, 3], p2), [3, 4, 5]);
+    
+    _a(zip([1, 2], ["a", "b"]), [[1, "a"], [2, "b"]]);
 }
 
 module test_right() {
@@ -90,6 +95,7 @@ module test_loop() {
     _a(loop(3, [1, 2]), [NEST_MARKER, [1, 2, 1, 2, 1, 2]]);
 }
 
+test_utils();
 test_right();
 test_move();
 test_split_modes();

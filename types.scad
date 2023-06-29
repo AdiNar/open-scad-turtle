@@ -14,13 +14,13 @@ function State(old_state, rotation_matrix=undef, position=undef, line_width=unde
 function is_state(obj) = is(obj, "__State__");
 
 // get_rotation_matrix: State -> RotMatrix
-function get_rotation_matrix(state) = assert(is_state(state)) state[1];
+function get_rotation_matrix(state) = assert(is_state(state), state) state[1];
 
 // get_position: State -> Position
-function get_position(state) = assert(is_state(state))  state[2];
+function get_position(state) = assert(is_state(state), state) state[2];
 
 // get_line_width: State -> LineWidth
-function get_line_width(state) = assert(is_state(state)) state[3];
+function get_line_width(state) = assert(is_state(state), state) state[3];
 
 // init_state: () -> State 
 function init_state() = State(
@@ -33,60 +33,59 @@ function init_state() = State(
     5 // line_width
 );
 
-// Move: (MoveType, [Arg]) -> Move
-function Move(type, args) = assert(is_move_type(type)) ["__Move__", type, args];
-function is_move(obj) = is(obj, "__Move__");
+// Operation: (OperationType, [Arg]) -> Operation
+function Operation(type, args) = assert(is_op_type(type)) ["__Operation__", type, args];
+function is_op(obj) = is(obj, "__Operation__");
 
-// get_move_type: Move -> fun
-function get_move_type(move) = assert(is_move(move)) move[1];
+// get_op_type: Operation -> fun
+function get_op_type(op) = assert(is_op(op), op) op[1];
 
-// get_move_args: Move -> [Arg]
-function get_move_args(move) = assert(is_move(move)) move[2];
+// get_op_args: Operation -> [Arg]
+function get_op_args(op) = assert(is_op(op), op) op[2];
 
-// Step: (State, Move) -> Step
-function Step(state, move) = assert(is_move(move)) [
+// Step: (State, Operation) -> Step
+function Step(state, op) = assert(is_op(op), op) [
     "__Step__",
     state,
-    move,
+    op,
 ];
 
 function is_step(obj) = is(obj, "__Step__");
 
-// Step: (State, Move)
-// make_steps: [State] ->, [Move] -> [Step]
-function make_steps(states, moves) = map(
-    zip(states, moves),
+// Step: (State, Operation)
+// make_steps: [State] ->, [Operation] -> [Step]
+function make_steps(states, ops) = map(
+    zip(states, ops),
     function (x) Step(x[0], x[1])
 );
 
 // get_step_state: Step -> State
-function get_step_state(step) = assert(is_step(step)) step[1];
+function get_step_state(step) = assert(is_step(step), step) step[1];
 
-// get_step_move: Step -> Move
-function get_step_move(step) = assert(is_step(step)) step[2];
+// get_step_op: Step -> Operation
+function get_step_op(step) = assert(is_step(step), step) step[2];
 
-// get_step_move: Step -> MoveType
-function get_step_type(step) = assert(is_step(step)) get_move_type(get_step_move(step));
+// get_step_op: Step -> OperationType
+function get_step_type(step) = assert(is_step(step), step) get_op_type(get_step_op(step));
 
 // get_step_args: Step -> [Arg]
-function get_step_args(step) = assert(is_step(step)) get_move_args(get_step_move(step));
+function get_step_args(step) = assert(is_step(step), step) get_op_args(get_step_op(step));
 
 // Mode: (ModeType, [Step]) -> Mode
-function Mode(move_type, states) = 
-    assert(is_move_type(move_type))
+function Mode(op_type, states) = 
+    assert(is_op_type(op_type))
     [
-        "__Mode__", move_to_mode(move_type), states
+        "__Mode__", op_to_mode(op_type), states
     ];
 
 function is_mode(obj) = is(obj, "__Mode__");
 
 // get_mode_type: Mode -> ModeType
-function get_mode_type(mode) = assert(is_mode(mode)) mode[1];
+function get_mode_type(mode) = assert(is_mode(mode), mode) mode[1];
 
 // get_mode_steps: Mode -> [Step]
-function get_mode_steps(mode) = assert(is_mode(mode)) mode[2];
+function get_mode_steps(mode) = assert(is_mode(mode), mode) mode[2];
 
-// ModeType is MoveType
 // mode_fill :: ModeType
 function _ModeType(type_str) = ["__ModeType__", type_str]; 
 mode_fill = _ModeType("__mode_fill__");
@@ -94,39 +93,50 @@ mode_normal = _ModeType("__mode_normal__");
 
 is_mode_type = function (obj) is(obj, "__ModeType__");
 
-// MoveType: str -> MoveType
-function _MoveType(type_str) = ["__MoveType__", type_str]; 
-right = _MoveType("__right__");
-left = _MoveType("__left__");
-forward = _MoveType("__forward__");
-goto = _MoveType("__goto__");
-move = _MoveType("__move__");
-noop = _MoveType("__noop__");
-move_mode_fill = _MoveType("__move_mode_fill__"); 
-move_mode_normal = _MoveType("__move_mode_normal__");
+function right(angle) = Operation(right_type, angle);
+function left(angle) = Operation(left_type, angle);
+function forward(delta) = Operation(forward_type, delta);
+function goto(pos) = Operation(goto_type, pos);
+function move(delta) = Operation(move_type, delta);
+function noop() = Operation(noop_type);
+function fill_mode() = Operation(fill_mode_type);
+function normal_mode() = Operation(normal_mode_type);
 
-is_move_type = function (obj) is(obj, "__MoveType__");
-is_mode_move = function (obj) obj == move_mode_fill || obj == move_mode_normal;
+// OperationType: str -> OperationType
+function _OperationType(type_str) = ["__OperationType__", type_str]; 
+right_type = _OperationType("__right__");
+left_type = _OperationType("__left__");
+forward_type = _OperationType("__forward__");
+goto_type = _OperationType("__goto__");
+move_type = _OperationType("__move__");
+noop_type = _OperationType("__noop__");
+fill_mode_type = _OperationType("__fill_mode_type__"); 
+normal_mode_type = _OperationType("__normal_mode_type__");
 
-function get_move_fun(move_type) =
-    move_type == right ? right_fun :
-    move_type == left ? left_fun :
-    move_type == forward ? forward_fun :
-    move_type == goto ? goto_fun :
-    move_type == move ? move_fun :
-    move_type == noop ? noop_fun :
-    mode_type == move_mode_fill ? mode_fill_fun :
-    mode_type == move_mode_normal ? mode_normal_fun :
-    assert(false, move_type);
+is_op_type = function (obj) is(obj, "__OperationType__");
+is_mode_op_type = function (type) assert(is_op_type(type), type)
+    type == normal_mode_type || type == fill_mode_type;
+
+function get_op_fun(op_type) =
+    op_type == right_type ? right_fun :
+    op_type == left_type ? left_fun :
+    op_type == forward_type ? forward_fun :
+    op_type == goto_type ? goto_fun :
+    op_type == move_type ? move_fun :
+    op_type == noop_type ? noop_fun :
+    op_type == fill_mode_type ? mode_fill_fun :
+    op_type == normal_mode_type ? mode_normal_fun :
+    assert(false, op_type);
     
 function get_mode_fun(mode_type) =
     mode_type == mode_fill ? mode_fill_fun :
     mode_type == mode_normal ? mode_normal_fun :
     assert(false, mode_type);
     
-function move_to_mode(move_type) =
-    assert(is_move_type(move_type))
-    move_type == move_mode_fill ? mode_fill :
-    move_type == move_mode_normal ? mode_normal :
-    assert(false, move_type);
+// op_to_mode: OperationType -> ModeType
+function op_to_mode(op_type) =
+    assert(is_op_type(op_type))
+    op_type == fill_mode_type ? mode_fill :
+    op_type == normal_mode_type ? mode_normal :
+    assert(false, op_type);
     

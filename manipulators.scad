@@ -2,7 +2,7 @@ include<types.scad>
 
 NEST_MARKER = "__Nested__";
 
-// Nested: [Move] -> Nested
+// Nested: [Operation] -> Nested
 function Nested(body) = 
     ["__Nested__", body];
 
@@ -13,29 +13,27 @@ function loop(times, body) = Nested(_loop(times, body));
 function _loop(times, body) =
     times == 0 ? [] : concat(body, _loop(times - 1, body));
 
-// fill: [Move] -> Nested
+// fill: [Operation] -> Nested
 function fill(body) = Nested([
-    Move(move_mode_fill),
-    is_move(body) || is_nested(body) ? body : Nested(body),
-    Move(move_mode_normal)
+    fill_mode(),
+    is_op(body) || is_nested(body) ? body : Nested(body),
+    normal_mode()
 ]);
 
-// Figure: [Move] -> Nested
-function Figure(moves) = Nested(moves);
+// Figure: [Operation] -> Nested
+function Figure(ops) = Nested(ops);
 
-// flatten_moves: Move | [Move | Nested[Move] ...] -> [Move]
-function flatten_moves(moves) = echo("to_flatten", moves) _flatten_moves(moves, 0);
-function _flatten_moves(moves, index) =
-    index == len(moves) ? undef :
-        is_nested(moves) ? _flatten_moves(flatten(moves), 0) :
+// flatten_ops: Operation | [Operation | Nested ...] -> [Operation]
+function flatten_ops(ops) = _flatten_ops(ops, 0);
+function _flatten_ops(ops, index) =
+    index == len(ops) ? undef :
+        is_nested(ops) ? _flatten_ops(flatten(ops), 0) :
             let (
-                move = moves[index],
-                _0 = echo("Moves", moves),
-                _ = echo("move", move),
-                _1 = assert(is_move(move) || is_nested(move), move),
-                head = is_nested(move) ? 
-                        _flatten_moves(flatten(move), 0) : 
-                        [move],
-                tail = _flatten_moves(moves, index+1)
+                op = ops[index],
+                _1 = assert(is_op(op) || is_nested(op), op),
+                head = is_nested(op) ? 
+                        _flatten_ops(flatten(op), 0) : 
+                        [op],
+                tail = _flatten_ops(ops, index+1)
             )
             tail == undef ? head : concat(head, tail);

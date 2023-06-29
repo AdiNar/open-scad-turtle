@@ -1,7 +1,7 @@
 include <types.scad>
 include <primitives.scad>
 
-// is_mode: MoveType -> bool
+// is_mode: OperationType -> bool
 is_mode_type = function (type) 
     let (str_type = str(type)) 
         str_type == mode_fill_str || str_type == mode_normal_str;   
@@ -12,17 +12,17 @@ is_mode_type = function (type)
    Assignment is required as otherwise OpenSCAD looks for module with this name.   
 */
 
-// echo_move_type: Move -> ()
-echo_move_type = function (move) echo("MoveType", move_to_name(get_move_type(move)));  
+// echo_op_type: Operation -> ()
+echo_op_type = function (op) echo("OperationType", get_op_type(op));  
 
-// echo_move_type: MoveType -> ()
-echo_type = function (move_type) echo("MoveType", move_to_name(move_type));   
+// echo_op_type: OperationType -> ()
+echo_type = function (op_type) echo("OperationType", op_type);   
     
-// echo_move: Move -> ()
-echo_move = function (move) echo("Move", move_to_name(get_move_type(move)), get_move_args(move));
+// echo_op: Operation -> ()
+echo_op = function (op) echo("op", get_op_type(op), get_op_args(op));
 
-// echo_moves: [Move] -> ()
-echo_moves = function(moves) map(moves, echo_move);
+// echo_ops: [Operation] -> ()
+echo_ops = function(ops) map(ops, echo_op);
 
 // echo_step: Step -> ()
 echo_step = function (step) echo(
@@ -37,7 +37,7 @@ echo_steps = function (steps) echo ("Steps", steps) map(steps, echo_step);
 echo_mode = function (mode) 
     let(
         _1 = echo(
-            "Mode", move_to_name(get_mode_type(mode)) 
+            "Mode", get_mode_type(mode) 
             ),
         _2 = echo_steps(get_mode_steps(mode))
     ) undef;

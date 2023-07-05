@@ -1,15 +1,11 @@
 include <types.scad>
-include <primitives.scad>
-
-// is_mode: OperationType -> bool
-is_mode_type = function (type) 
-    let (str_type = str(type)) 
-        str_type == mode_fill_str || str_type == mode_normal_str;   
    
 /* 
    Utility functions to print various types.
    Usage: _ = _echo_<type>(<type>);
-   Assignment is required as otherwise OpenSCAD looks for module with this name.   
+   Assignment is required as otherwise OpenSCAD looks for module with this name.
+   
+   The most important feature is that those functions check the types of things they print.
 */
 
 // echo_op_type: Operation -> ()
@@ -49,5 +45,3 @@ echo_modes = function (modes) map(modes, echo_mode);
 echo_state = function (state) echo(get_position(state));
 // echo_states: [State] -> ()
 echo_states = function (states) map(states, echo_state);
-
-/* End of print functions */

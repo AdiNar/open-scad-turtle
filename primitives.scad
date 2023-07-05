@@ -1,6 +1,47 @@
 include <types.scad>
 
-/* FUNCTIONS */
+/*  ======== OPERATIONS ==========  */
+
+right_type = _OperationType("__right__");
+left_type = _OperationType("__left__");
+forward_type = _OperationType("__forward__");
+goto_type = _OperationType("__goto__");
+move_type = _OperationType("__move__");
+noop_type = _OperationType("__noop__");
+fill_mode_type = _OperationType("__fill_mode_type__"); 
+normal_mode_type = _OperationType("__normal_mode_type__");
+
+/* This is actually the list of operations that user is allowed to use. */
+function _right(angle) = Operation(right_type, angle);
+function _left(angle) = Operation(left_type, angle);
+function _forward(delta) = Operation(forward_type, delta);
+function _goto(pos) = Operation(goto_type, pos);
+function _move(delta) = Operation(move_type, delta);
+
+function _loop(times, body) = Nested(_loop(times, body));
+function __loop(times, body) =
+    times == 0 ? [] : concat(body, _loop(times - 1, body));
+
+/* Fills the inside of the drawing. */
+// fill: [Operation] -> Nested
+function _fill(body) = Nested([
+    _fill_mode(),
+    is_op(body) || is_nested(body) ? body : Nested(body),
+    _normal_mode()
+]);
+
+/* Operations that are for internal use only */
+function _noop() = Operation(noop_type);
+function _fill_mode() = Operation(fill_mode_type);
+function _normal_mode() = Operation(normal_mode_type);
+
+mode_fill = _ModeType("__mode_fill__");
+mode_normal = _ModeType("__mode_normal__");
+
+
+/*  ======== OPERATIONS UNDER THE HOOD =========  */
+
+/* Those are the the only functions that operate on state elements directly. */
 
 function _left(current_rotation, angle) =
     let (new_rotation = [
@@ -12,47 +53,21 @@ function _left(current_rotation, angle) =
 function _move(current_rotation, current_position, delta) =
     current_position + current_rotation * delta;
 
-left_fun = function (state, angle) State(
-    state, rotation_matrix=_left(get_rotation_matrix(state), angle)
+left_fun = function (state, angle) update_state(
+    state, rotation_matrix=_left(get_state_rotation_matrix(state), angle)
 );
 
 right_fun = function (state, angle) left_fun(state, -angle);
 
-goto_fun = function (state, position) State(state, position=position);
+goto_fun = function (state, position) update_state(state, position=position);
 
-op_fun = function (state, delta) State(
-    state, position=_move(get_rotation_matrix(state), get_position(state), delta)
+move_fun = function (state, delta) update_state(
+    state, position=_move(get_state_rotation_matrix(state), get_state_position(state), delta)
 );
-forward_fun = function (state, x_delta) op_fun(state, [x_delta, 0]);
+
+forward_fun = function (state, x_delta) move_fun(state, [x_delta, 0]);
 
 noop_fun = function (state, _) state;
 
 mode_fill_fun = noop_fun;
 mode_normal_fun = noop_fun;
-/* MODULES */
-
-module draw_move(state, delta) {
-    w = get_line_width(state) / 2;
-    
-    start_1 = [0, w/2];
-    start_2 = [0, -w/2];
-    
-    translate(get_position(state)) multmatrix(get_rotation_matrix(state)) {
-        polygon([start_1, start_2, start_2 + delta, start_1 + delta]);
-    }
-}
-
-
-module draw_forward(state, x_delta) {
-    draw_move(state, [x_delta, 0]);
-}
-
-module draw(state, type, args) {
-    assert(is_op_type(type));
-    
-    if (type == forward_type) {
-        draw_forward(state, args);
-    } else if (type == move_type) {
-        draw_move(state, args);
-    }
-}

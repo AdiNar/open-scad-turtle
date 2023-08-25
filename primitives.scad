@@ -11,16 +11,18 @@ noop_type = _OperationType("__noop__");
 fill_mode_type = _OperationType("__fill_mode_type__"); 
 normal_mode_type = _OperationType("__normal_mode_type__");
 
-/* This is actually the list of operations that user is allowed to use. */
+/* This is actually the list of operations that are meant to be used by the user.
+   Full interface for endusers is available in `turtle.scad`.
+*/
 function _right(angle) = Operation(right_type, angle);
 function _left(angle) = Operation(left_type, angle);
 function _forward(delta) = Operation(forward_type, delta);
 function _goto(pos) = Operation(goto_type, pos);
 function _move(delta) = Operation(move_type, delta);
 
-function _loop(times, body) = Nested(_loop(times, body));
+function _loop(times, body) = Nested(__loop(times, body));
 function __loop(times, body) =
-    times == 0 ? [] : concat(body, _loop(times - 1, body));
+    times == 0 ? [] : concat(body, __loop(times - 1, body));
 
 /* Fills the inside of the drawing. */
 // fill: [Operation] -> Nested
@@ -43,7 +45,7 @@ mode_normal = _ModeType("__mode_normal__");
 
 /* Those are the the only functions that operate on state elements directly. */
 
-function _left(current_rotation, angle) =
+function _rotate_left(current_rotation, angle) =
     let (new_rotation = [
             [cos(angle), -sin(angle)],
             [sin(angle), cos(angle)]
@@ -54,7 +56,7 @@ function _move(current_rotation, current_position, delta) =
     current_position + current_rotation * delta;
 
 left_fun = function (state, angle) update_state(
-    state, rotation_matrix=_left(get_state_rotation_matrix(state), angle)
+    state, rotation_matrix=_rotate_left(get_state_rotation_matrix(state), angle)
 );
 
 right_fun = function (state, angle) left_fun(state, -angle);

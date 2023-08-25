@@ -1,3 +1,12 @@
+use <primitives.scad>
+use <draw.scad>
+
+/* Below is a set of operations available to users */
+
+module draw(ops, initial_state=undef) {
+    _draw(initial_state, ops);
+}
+
 /*  Turn right by angle in degrees */
 right = function (angle) _right(angle);
 

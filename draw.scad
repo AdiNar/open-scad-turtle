@@ -1,6 +1,9 @@
 include <types.scad>
+include <primitives.scad>
 include <type_utils.scad>
 include <draw_utils.scad>
+
+/* Only modules can draw in OpenSCAD. Those are modules that draw turtle moves. */
 
 module draw_move(state, delta) {
     w = get_state_line_width(state) / 2;
@@ -38,13 +41,14 @@ module draw_steps(steps) {
     }
 }
 
-// draw: State -> [Move] -> ()
-module draw(initial_state=undef, ops) {
+// Renders Operation list from given initial state.
+// draw: State -> [Operation] -> ()
+module _draw(initial_state=undef, ops) {
     state = initial_state == undef ? init_state() : initial_state;
     
     // To flat loops, figures and fills
     flat_ops = flatten_ops(ops);
-    ops_with_ending = concat(flat_ops, [noop()]);
+    ops_with_ending = concat(flat_ops, [_noop()]);
     
     states = generate_states(state, flat_ops);
     steps = make_steps(states, ops_with_ending);

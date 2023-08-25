@@ -13,7 +13,7 @@ function init_state() = State(
 );
 
 // Allows to easily update single (or more) attribute of the state
-function update_state(old_state, rotation_matrix=undef, position=undef, line_width=undef) =
+function update_state(old_state=init_state(), rotation_matrix=undef, position=undef, line_width=undef) =
     State(
         coalesce(rotation_matrix, old_state[1]),
         coalesce(position, old_state[2]),
@@ -53,7 +53,7 @@ function get_mode_fun(mode_type) =
     mode_type == mode_normal ? mode_normal_fun :
     assert(false, mode_type);
     
-    
+
 is_mode_op_type = function (type) 
     assert(is_op_type(type), type)
     type == normal_mode_type || type == fill_mode_type;
@@ -84,27 +84,35 @@ function _flatten_ops(ops, index) =
 
 
 // split_by_modes: [Step] -> [Mode = (ModeType, [Step])]
-function split_by_modes(vector) = _split_by_modes(vector, 0);  
-function _split_by_modes(vector, index) = 
-    index == len(vector) ? [] :
+// Steps are rendered in interative manner, they pass state to the next one.
+// However, we need also a way to run some operations in a new sub environment.
+// This would be very helpful to implement operations like `paint`, that fill only shapes passed as arguments.
+// In order to achieve that we split step list into list per each Mode.
+// One example of Mode is `paint`. 
+function split_by_modes(steps) = _split_by_modes(steps, 0);  
+function _split_by_modes(steps, index) = 
+    index == len(steps) ? [] :
         let (
-            head_step = vector[index], 
+            head_step = steps[index], 
             type = get_step_type(head_step),
             mode_type = is_mode_op_type(type) ? type : normal_mode_type,
             // We exclude Step with mode_type, so we must jump over one item
             inmode_offset = is_mode_op_type(type) ? 1 : 0,
-            values_in_mode = take_mode(vector, index + inmode_offset), 
+            values_in_mode = take_mode(steps, index + inmode_offset), 
             next_index = index + len(values_in_mode) + inmode_offset
         )
-            concat([Mode(mode_type, values_in_mode)], _split_by_modes(vector, next_index));
+            concat([Mode(mode_type, values_in_mode)], _split_by_modes(steps, next_index));
             
 
+// From input list, starting at index, return steps untill the Mode end.
 // take_mode: [Step] -> int -> [Step]
-function take_mode(vector, index) =
-    index == len(vector) ? [] :
-        let (el = vector[index], type = get_step_type(el))
-        is_mode_op_type(type) ? [] : concat([el], take_mode(vector, index+1));            
+function take_mode(steps, index) =
+    index == len(steps) ? [] :
+        let (el = steps[index], type = get_step_type(el))
+        is_mode_op_type(type) ? [] : concat([el], take_mode(steps, index+1));            
             
+// Operations are transitions between States. Here we take initial state and list of Operations
+// and turn them into list of States.
 // generate_states: State -> [Operation] -> [State]
 function generate_states(state, ops) = _generate_states(state, ops, 0);
 function _generate_states(state, ops, index) =

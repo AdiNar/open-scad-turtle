@@ -18,8 +18,8 @@ slot_2 = update_state(position=[500, 0]);
 // There are loops also!
 draw([
     loop(3, [
-        forward(100),
         left(120),
+        forward(100),
     ])
 ], slot_2);
 
@@ -36,7 +36,7 @@ hex = figure(
 
 // Solid shapes are available too
 draw([
-    loop(9, [
+    loop(8, [
         forward(300),
         paint(hex),
         left(45),

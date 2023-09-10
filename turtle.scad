@@ -2,6 +2,7 @@ use <primitives.scad>
 use <draw.scad>
 
 /* Below is a set of operations available to users */
+/* Examples are listed in `examples.scad` */
 
 module draw(ops, initial_state=undef) {
     _draw(initial_state, ops);

@@ -1,7 +1,6 @@
 include <types.scad>
 include <primitives.scad>
 include <type_utils.scad>
-include <draw_utils.scad>
 
 /* Only modules can draw in OpenSCAD. Those are modules that draw turtle moves. */
 

@@ -40,7 +40,7 @@ function Operation(type, args) = assert(is_op_type(type)) ["__Operation__", type
 
 /*  Step keeps state and the transition to the next state. Notice that it's all that is needed to draw something on screen. We know were and how to draw (state) and what to draw (operation). */
 // Step: (State, Operation) -> Step
-function Step(state, op) = assert(is_op(op), op) 
+function Step(state, op) = assert(is_state(state)) assert(is_op(op), op)
     ["__Step__", state, op];
 
 /*  There are effects in drawing that cannot be represented as a transition between two states. Furthermore, OpenSCAD implements them as a scope. Filling the drawing with color is one of such effects. We call those effects "Modes". As we have no real variables in OpenSCAD, we have to use those scopes, but we have to pass sequences of Steps to them. Mode executes some Operation over steps. 

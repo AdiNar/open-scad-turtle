@@ -52,7 +52,7 @@ function _rotate_left(current_rotation, angle) =
         ])
         current_rotation * new_rotation;
 
-function _move(current_rotation, current_position, delta) =
+function _move_fun(current_rotation, current_position, delta) =
     current_position + current_rotation * delta;
 
 left_fun = function (state, angle) update_state(
@@ -64,7 +64,7 @@ right_fun = function (state, angle) left_fun(state, -angle);
 goto_fun = function (state, position) update_state(state, position=position);
 
 move_fun = function (state, delta) update_state(
-    state, position=_move(get_state_rotation_matrix(state), get_state_position(state), delta)
+    state, position=_move_fun(get_state_rotation_matrix(state), get_state_position(state), delta)
 );
 
 forward_fun = function (state, x_delta) move_fun(state, [x_delta, 0]);

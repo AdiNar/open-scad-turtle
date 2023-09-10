@@ -16,7 +16,7 @@ draw([
 ]);
 ```
 
-Note that there are other, more developed solutions of this kind, like [dotSCAD](https://github.com/JustinSDK/dotSCAD#turtle). This is just another approach to make fun with the language.
+Note that there are other, more developed solutions of this kind, like [dotSCAD](https://github.com/JustinSDK/dotSCAD#turtle). This is just another approach, mostly to play around with the language.
 
 
 ## How to use

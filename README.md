@@ -21,9 +21,9 @@ Note that there are other, more developed solutions of this kind, like [dotSCAD]
 
 ## How to use
 - Clone this repository inside the OpenSCAD library directory, according to your platform:
-    - Windows: My Documents\OpenSCAD\libraries\
-    - Linux: $HOME/.local/share/OpenSCAD/libraries/
-    - Mac OS X: $HOME/Documents/OpenSCAD/libraries/
+    - Windows: `My Documents\OpenSCAD\libraries\`
+    - Linux: `$HOME/.local/share/OpenSCAD/libraries/`
+    - Mac OS X: `$HOME/Documents/OpenSCAD/libraries/`
 
 - Restart OpenSCAD.
 

@@ -7,6 +7,7 @@ left_type = _OperationType("__left__");
 forward_type = _OperationType("__forward__");
 goto_type = _OperationType("__goto__");
 move_type = _OperationType("__move__");
+line_width_type = _OperationType("__line_width__");
 noop_type = _OperationType("__noop__");
 fill_mode_type = _OperationType("__fill_mode_type__"); 
 normal_mode_type = _OperationType("__normal_mode_type__");
@@ -19,6 +20,7 @@ function _left(angle) = Operation(left_type, angle);
 function _forward(delta) = Operation(forward_type, delta);
 function _goto(pos) = Operation(goto_type, pos);
 function _move(delta) = Operation(move_type, delta);
+function _line_width(size) = Operation(line_width_type, size);
 
 function _loop(times, body) = Nested(__loop(times, body));
 function __loop(times, body) =
@@ -43,7 +45,9 @@ mode_normal = _ModeType("__mode_normal__");
 
 /*  ======== OPERATIONS UNDER THE HOOD =========  */
 
-/* Those are the the only functions that operate on state elements directly. */
+/* Those are the the only functions that operate on state elements directly.
+   Look at `get_op_fun`, which maps Operations to functions.
+*/
 
 function _rotate_left(current_rotation, angle) =
     let (new_rotation = [
@@ -68,6 +72,8 @@ move_fun = function (state, delta) update_state(
 );
 
 forward_fun = function (state, x_delta) move_fun(state, [x_delta, 0]);
+
+line_width_fun = function (state, size) update_state(state, line_width=size);
 
 noop_fun = function (state, _) state;
 

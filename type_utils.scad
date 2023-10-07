@@ -42,6 +42,7 @@ function get_op_fun(op_type) =
     op_type == forward_type ? forward_fun :
     op_type == goto_type ? goto_fun :
     op_type == move_type ? move_fun :
+    op_type == line_width_type ? line_width_fun :
     op_type == noop_type ? noop_fun :
     op_type == fill_mode_type ? mode_fill_fun :
     op_type == normal_mode_type ? mode_normal_fun :

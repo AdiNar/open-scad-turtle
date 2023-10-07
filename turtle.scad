@@ -27,6 +27,11 @@ goto = function (x, y) _goto([x, y]);
    <body> content multiple times. */
 loop = function (times, body) _loop(times, body);
 
+/* Changes width of the line. Line will be changed for all further operations, unless another
+   line_width is used. Warning! If used inside figure, this setting will restart the outer settings.
+*/
+line_width = function(size) _line_width(size);
+
 /*  Paints shape interior with solid. Warning: as currently `fill` transformationi s not yet available in stable OpenSCAD version, this operation uses `hull`. `hull` makes the convex hull over the body, and paints this interior, which may give misleading results.
     See OpenSCAD docs to know the difference.
     

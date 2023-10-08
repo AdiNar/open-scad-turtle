@@ -32,7 +32,7 @@ loop = function (times, body) _loop(times, body);
 */
 line_width = function(size) _line_width(size);
 
-/*  Paints shape interior with solid. Warning: as currently `fill` transformationi s not yet available in stable OpenSCAD version, this operation uses `hull`. `hull` makes the convex hull over the body, and paints this interior, which may give misleading results.
+/*  Paints shape interior with solid. Warning: as currently `fill` transformation is not yet available in stable OpenSCAD version, this operation uses `hull`. `hull` makes the convex hull over the body, and paints this interior, which may give misleading results.
     See OpenSCAD docs to know the difference.
     
     NOTE: paint cannot be used nested, it will give undefined results.

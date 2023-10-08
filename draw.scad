@@ -12,6 +12,8 @@ module draw_move(state, delta) {
     
     translate(get_state_position(state)) multmatrix(get_state_rotation_matrix(state)) {
         polygon([start_1, start_2, start_2 + delta, start_1 + delta]);
+        circle(w / 2, $fn=20);
+        translate(delta) circle(w / 2, $fn=20);
     }
 }
 

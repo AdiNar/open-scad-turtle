@@ -1,5 +1,6 @@
 include <turtle.scad>
 
+
 // One can draw shapes just like using turtle
 draw([
     left(30),
@@ -55,9 +56,8 @@ draw([
 ], slot_4);
 
 
-// Line width can be changed too. Not that we draw rectangles. It may happen that
-// outer contour has defects (like presented in the example). To get smooth filling
-// consider using `fill`.
+// Line width can be changed too. Corners will be rounded. To get sharper edges consider
+// smaller line_width with `paint`.
 slot_5 = update_state(position=[3000, 0]);
 draw([
     hex,
@@ -65,4 +65,3 @@ draw([
     line_width(100),
     hex
 ], slot_5);
-
